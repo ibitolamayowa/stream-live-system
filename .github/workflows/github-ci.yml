@@ -1,6 +1,6 @@
-name: CI
+name: CI test
 
-on: [pull_request, push]
+on: [pull_request]
 
 jobs:
   build:
@@ -8,22 +8,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: docker run rabbitmq
-      run: |
-        cd rabbitmq
-        docker-compose up -d
-        cd ..
-
     - name: Test container rabbitmq
       run: |
         docker run --network container:container-rabbitmq-queue jwilder/dockerize -wait http://localhost:15672 -timeout 120s -wait-retry-interval 5s
 
-    - name: docker run micro live manager
-      run: |
-        cd micro-live-manager
-        docker-compose up -d
-        cd ..
-    
     - name: Test container micro-live-manager-backend
       run: |
         docker run --network container:micro-live-manager-backend jwilder/dockerize -wait http://localhost:3333/api/lives -timeout 300s -wait-retry-interval 5s
@@ -32,12 +20,6 @@ jobs:
       run: |
         docker run --network container:micro-live-manager-frontend jwilder/dockerize -wait http://localhost:8000 -timeout 120s -wait-retry-interval 5s
     
-    - name: docker run micro live streaming
-      run: |
-        cd micro-live-streaming
-        docker-compose up -d
-        cd ..
-
     - name: Test container micro-live-streaming
       run: |
         docker run --network container:micro-live-streaming jwilder/dockerize -wait http://localhost:4000 -timeout 120s -wait-retry-interval 5s
